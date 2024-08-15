@@ -46,12 +46,14 @@ if file is not None:
             try:
                 # Attempt to parse date with automatic format detection
                 df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
+                if df["Date"].isnull().any():
+                    st.warning("Some dates could not be parsed and are being filled with NaT.")
                 df["Date"] = df["Date"].astype("int64") // 10**9  # Convert to Unix timestamp
                 df["Date"] = df["Date"].astype("float32")
                 # Handle NaT values if any
                 df["Date"].fillna(df["Date"].mean(), inplace=True)  # Or another method of handling NaT values
-            except ValueError as e:
-                st.error(f"Error parsing Date column: {e}")
+            except Exception as e:
+                st.error(f"Error handling Date column: {e}")
                 st.stop()
 
         obj_col = df.select_dtypes(include="object").columns.tolist()
