@@ -44,9 +44,12 @@ if file is not None:
         # Handle Date column
         if "Date" in df.columns:
             try:
-                df["Date"] = pd.to_datetime(df["Date"], format="%m/%d/%Y")
+                # Attempt to parse date with automatic format detection
+                df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
                 df["Date"] = df["Date"].astype("int64") // 10**9  # Convert to Unix timestamp
                 df["Date"] = df["Date"].astype("float32")
+                # Handle NaT values if any
+                df["Date"].fillna(df["Date"].mean(), inplace=True)  # Or another method of handling NaT values
             except ValueError as e:
                 st.error(f"Error parsing Date column: {e}")
                 st.stop()
