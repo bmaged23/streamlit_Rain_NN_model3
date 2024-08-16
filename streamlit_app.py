@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Load the KMeans model, scaler, and encoders
-model = joblib.load('model.pkl')
+model = joblib.load('NN_model.pkl')
 label_encoders = joblib.load('label_encoders.pkl')
 scale = joblib.load('scaler.pkl')
 
