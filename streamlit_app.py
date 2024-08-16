@@ -4,9 +4,10 @@ import pandas as pd
 import numpy as np
 
 st.set_page_config(
-    page_title="K-means Prediction",
-    page_icon=":0"
+    page_title="Rain Model",
+    page_icon="🌧️"
 )
+
 
 # Load the KMeans model, scaler, and encoders
 model = joblib.load('NN_model.pkl')
@@ -88,7 +89,7 @@ if file is not None:
             
             if len(pred) > 1:
                 accuracy = np.sum(np.array(pred_acc) == y) / len(y)
-                st.write("Accuracy: ", accuracy)
+                #st.write("Accuracy: ", accuracy)
                 st.session_state.text_list = pred
                 st.write("Predicted Classes:")
                 st.write(st.session_state.text_list)
