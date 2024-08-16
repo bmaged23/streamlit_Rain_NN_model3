@@ -27,8 +27,10 @@ if file is not None:
     if df is not None:
         st.write(df.head())
         
+        df["Date"]=df["Date"].astype("category")
+        df["Date"] = label_encoders["Date"].transform(df["Date"])
         # IQR Interval handling
-        IQR_interval = [[-6.35, 30.85], [2.3, 43.9], [-1.2, 2.0], [-3.81, 13.49], [-1.59, 16.79], [5.5, 73.5], [-11.0, 37.0], [-3.5, 40.5], [18.0, 122.0], [-6.5, 109.5], [1000.65, 1034.65], [998.0, 1032.4], [-4.17, 13.70], [-2.05, 11.41], [-1.65, 35.55], [1.75, 41.35]]
+        IQR_interval = [[-6.35, 30.849999999999998], [2.2999999999999954, 43.900000000000006], [-1.2000000000000002, 2.0], [-3.8139780972602635, 13.488386858356158], [-1.5891839597562303, 16.79351037585374], [5.5, 73.5], [-11.0, 37.0], [-3.5, 40.5], [18.0, 122.0], [-6.5, 109.5], [1000.65, 1034.65], [998.0, 1032.4], [-4.172820848873743, 13.703692509324245], [-2.048021563042129, 11.413369271736881], [-1.6500000000000004, 35.550000000000004], [1.7500000000000036, 41.349999999999994]]
         columnss = ['MinTemp', 'MaxTemp', 'Rainfall', 'Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 'Humidity3pm', 'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'Temp9am', 'Temp3pm']
         
         for column, (lower_bound, upper_bound) in zip(columnss, IQR_interval):
@@ -38,26 +40,13 @@ if file is not None:
                 df.loc[outliers_lower, column] = lower_bound
                 df.loc[outliers_upper, column] = upper_bound
         
-        y = df["RainTomorrow"]
+        #y = df["RainTomorrow"]
         columns_to_drop = ['Temp9am', 'Pressure3pm', 'MaxTemp', 'Rainfall', 'Temp3pm', 'Unnamed: 0', 'RainTomorrow']
         df = df.drop(columns=[col for col in columns_to_drop if col in df.columns], errors='ignore')
 
-        # Handle Date column
-        if "Date" in df.columns:
-            try:
-                # Attempt to parse date with automatic format detection
-                df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
-                if df["Date"].isnull().any():
-                    st.warning("Some dates could not be parsed and are being filled with NaT.")
-                df["Date"] = df["Date"].astype("int64") // 10**9  # Convert to Unix timestamp
-                df["Date"] = df["Date"].astype("float32")
-                # Handle NaT values if any
-                df["Date"].fillna(df["Date"].mean(), inplace=True)  # Or another method of handling NaT values
-            except Exception as e:
-                st.error(f"Error handling Date column: {e}")
-                st.stop()
 
         obj_col = df.select_dtypes(include="object").columns.tolist()
+        print(obj_col)
         num_col = ['MinTemp', 'Evaporation', 'Sunshine', 'WindGustSpeed', 'WindSpeed9am', 'WindSpeed3pm', 'Humidity9am', 'Humidity3pm', 'Pressure9am', 'Cloud9am', 'Cloud3pm', 'Date']
 
         if set(num_col).issubset(df.columns):
@@ -86,9 +75,9 @@ if file is not None:
             prediction = model.predict(df)
             pred_acc = ["Yes" if p > 0.5 else "No" for p in prediction]
             pred = ["Rain" if p > 0.5 else "No Rain" for p in prediction]
-            
+            st.write(pred)
             if len(pred) > 1:
-                accuracy = np.sum(np.array(pred_acc) == y) / len(y)
+                #accuracy = np.sum(np.array(pred_acc) == y) / len(y)
                 #st.write("Accuracy: ", accuracy)
                 st.session_state.text_list = pred
                 st.write("Predicted Classes:")
